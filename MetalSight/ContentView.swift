@@ -15,6 +15,7 @@ struct ContentView: View {
   @State private var placement: AlignmentConfiguration = .topright
 
   @State private var metricsIsExpanded = false
+  @State private var metrics: Set<String> = []
 
   var body: some View {
     VStack(alignment: .leading, spacing: 10) {
@@ -38,7 +39,17 @@ struct ContentView: View {
 
         Section("Metrics", isExpanded: $metricsIsExpanded) {
           ForEach(ElementConfiguration.allCases) { metric in
-            Toggle(metric.rawValue, isOn: .constant(false))
+            Toggle(
+              metric.rawValue,
+              isOn: Binding {
+                metrics.contains(metric.description)
+              } set: { newValue in
+                if newValue {
+                  metrics.insert(metric.description)
+                } else {
+                  metrics.remove(metric.description)
+                }
+              })
           }
         }
         .listRowSeparator(.hidden)
@@ -48,6 +59,7 @@ struct ContentView: View {
         }
       }
       .listStyle(.plain)
+      .scrollIndicators(.never)
 
       Button("Quit", systemImage: "power.circle") {
         NSApp.terminate(nil)
@@ -83,7 +95,7 @@ struct ContentView: View {
         if enabled {
           let _ = try Process.run(
             URL(filePath: "/bin/launchctl"),
-            arguments: ["setenv", "MTL_HUD_ENABLED", "1", "MTL_HUD_ELEMENTS", ""])
+            arguments: ["setenv", "MTL_HUD_ENABLED", "1", "MTL_HUD_ELEMENTS", metrics.joined(separator: ",")])
         } else {
           let _ = try Process.run(
             URL(filePath: "/bin/launchctl"),

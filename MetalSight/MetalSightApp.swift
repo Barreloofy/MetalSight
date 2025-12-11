@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct MetalSightApp: App {
   var body: some Scene {
-    MenuBarExtra("Metal Sight", systemImage: "gamecontroller") {
+    MenuBarExtra("Metal Sight", systemImage: "gamecontroller.fill") {
       ContentView()
         .scenePadding()
     }
