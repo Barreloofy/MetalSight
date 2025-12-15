@@ -10,14 +10,19 @@ import SwiftUI
 struct MetricsView: View {
   @Binding var metricsModifier: Set<String>
   @Binding var metrics: Set<String>
+  @Binding var metricsModifierAdditional: Dictionary<String, Int>
 
-  @AppStorage("frameRange") private var frameRange = 6
-  @AppStorage("gpuInterval") private var gpuInterval = 1
-  @AppStorage("systemInterval") private var systemInterval = 3
+  private func selection(for key: String, defaultValue: Int) -> Binding<Int> {
+    Binding {
+      metricsModifierAdditional[key] ?? defaultValue
+    } set: { newValue in
+      metricsModifierAdditional[key] = newValue
+    }
+  }
 
-  private func isOn<Value: Hashable>(
-    for value: Value,
-    in set: Binding<Set<Value>>)
+  private func isOn(
+    for value: String,
+    in set: Binding<Set<String>>)
   -> Binding<Bool> {
     Binding {
       set.wrappedValue.contains(value)
@@ -57,23 +62,35 @@ struct MetricsView: View {
       .listRowSeparator(.hidden)
 
       Section {
-        Picker("GPU Timeline Frame Range", selection: $frameRange) {
-          ForEach(1...6, id: \.self) { count in
-            Text(count.description)
-          }
-        }
+        Picker(
+          "GPU Timeline Frame Range",
+          selection: selection(
+            for: "MTL_HUD_ENCODER_GPU_TIMELINE_FRAME_COUNT",
+            defaultValue: 6)) {
+              ForEach(1...6, id: \.self) { count in
+                Text(count.description)
+              }
+            }
 
-        Picker("GPU Timeline Update Interval", selection: $gpuInterval) {
-          ForEach([1, 15, 30, 45, 60], id: \.self) { interval in
-            Text(interval.description)
-          }
-        }
+        Picker(
+          "GPU Timeline Update Interval",
+          selection: selection(
+            for: "MTL_HUD_ENCODER_GPU_TIMELINE_SWAP_DELTA",
+            defaultValue: 1)) {
+              ForEach([1, 15, 30, 45, 60], id: \.self) { interval in
+                Text(interval.description)
+              }
+            }
 
-        Picker("System Resource Update Interval", selection: $systemInterval) {
-          ForEach([1, 3, 15, 30 , 45, 60], id: \.self) { interval in
-            Text(interval.description)
-          }
-        }
+        Picker(
+          "System Resource Update Interval",
+          selection: selection(
+            for: "MTL_HUD_RUSAGE_UPDATE_INTERVAL",
+            defaultValue: 3)) {
+              ForEach([1, 3, 15, 30 , 45, 60], id: \.self) { interval in
+                Text(interval.description)
+              }
+            }
       }
       .listRowSeparator(.hidden)
 
@@ -100,6 +117,10 @@ struct MetricsView: View {
   }
 }
 
+
 #Preview {
-  MetricsView(metricsModifier: .constant([]), metrics: .constant([]))
+  MetricsView(
+    metricsModifier: .constant([]),
+    metrics: .constant([]),
+    metricsModifierAdditional: .constant([:]))
 }

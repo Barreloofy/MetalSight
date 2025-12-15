@@ -15,6 +15,7 @@ struct ContentView: View {
 
   @AppStorage("metricsModifier") private var metricsModifier: Set<String> = []
   @AppStorage("metrics") private var metrics: Set<String> = []
+  @AppStorage("metricsModifierAdditional") var metricsModifierAdditional: Dictionary<String, Int> = [:]
 
   var body: some View {
     VStack(alignment: .leading, spacing: 10) {
@@ -22,13 +23,18 @@ struct ContentView: View {
 
       TabView {
         Tab {
-          HUDView(placement: $placement, scale: $scale)
+          HUDView(
+            placement: $placement,
+            scale: $scale)
         } label: {
           Text("HUD")
         }
 
         Tab {
-          MetricsView(metricsModifier: $metricsModifier, metrics: $metrics)
+          MetricsView(
+            metricsModifier: $metricsModifier,
+            metrics: $metrics,
+            metricsModifierAdditional: $metricsModifierAdditional)
         } label: {
           Text("Metrics")
         }
