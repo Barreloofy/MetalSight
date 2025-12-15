@@ -15,26 +15,17 @@ struct MetricsView: View {
   @AppStorage("gpuInterval") private var gpuInterval = 1
   @AppStorage("systemInterval") private var systemInterval = 3
 
-  private func isOn(for metric: MetalHUDMetrics) -> Binding<Bool> {
+  private func isOn<Value: Hashable>(
+    for value: Value,
+    in set: Binding<Set<Value>>)
+  -> Binding<Bool> {
     Binding {
-      metrics.contains(metric.description)
+      set.wrappedValue.contains(value)
     } set: { newValue in
       if newValue {
-        metrics.insert(metric.description)
+        set.wrappedValue.insert(value)
       } else {
-        metrics.remove(metric.description)
-      }
-    }
-  }
-
-  private func isOn(for modifier: String) -> Binding<Bool> {
-    Binding {
-      metricsModifier.contains(modifier)
-    } set: { newValue in
-      if newValue {
-        metricsModifier.insert(modifier)
-      } else {
-        metricsModifier.remove(modifier)
+        set.wrappedValue.remove(value)
       }
     }
   }
@@ -44,15 +35,21 @@ struct MetricsView: View {
       Section {
         Toggle(
           "Show Value Range",
-          isOn: isOn(for: "MTL_HUD_SHOW_METRICS_RANGE"))
+          isOn: isOn(
+            for: "MTL_HUD_SHOW_METRICS_RANGE",
+            in: $metricsModifier))
 
         Toggle(
           "Show Metrics With 0 Value",
-          isOn: isOn(for: "MTL_HUD_SHOW_ZERO_METRICS"))
+          isOn: isOn(
+            for: "MTL_HUD_SHOW_ZERO_METRICS",
+            in: $metricsModifier))
 
         Toggle(
           "Encoder GPU Time Tracking",
-          isOn: isOn(for: "MTL_HUD_ENCODER_TIMING_ENABLED"))
+          isOn: isOn(
+            for: "MTL_HUD_ENCODER_TIMING_ENABLED",
+            in: $metricsModifier))
         Label("Increases CPU usage", systemImage: "exclamationmark.triangle.fill")
           .symbolRenderingMode(.multicolor)
           .listRowInsets(.leading, 25)
@@ -85,8 +82,9 @@ struct MetricsView: View {
           VStack(alignment: .leading) {
             Toggle(
               metric.rawValue,
-              isOn: isOn(for: metric))
-
+              isOn: isOn(
+                for: metric.description,
+                in: $metrics))
             if metric.requiresEncoderGPUTimeTracking {
               Label(
                 "Requires Encoder GPU Time Tracking",
