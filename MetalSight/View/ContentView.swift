@@ -13,9 +13,12 @@ struct ContentView: View {
   @AppStorage("placement") private var placement: HUDPlacement = .topright
   @AppStorage("scale") private var scale = 0.2
 
-  @AppStorage("metricsModifier") private var metricsModifier: Set<String> = []
   @AppStorage("metrics") private var metrics: Set<String> = []
-  @AppStorage("metricsModifierAdditional") var metricsModifierAdditional: Dictionary<String, Int> = [:]
+  @AppStorage("metricsModifier") private var metricsModifier: Dictionary<String, Int> = [
+    "MTL_HUD_ENCODER_GPU_TIMELINE_FRAME_COUNT": 6,
+    "MTL_HUD_ENCODER_GPU_TIMELINE_SWAP_DELTA": 1,
+    "MTL_HUD_RUSAGE_UPDATE_INTERVAL": 3,
+  ]
 
   var body: some View {
     VStack(alignment: .leading, spacing: 10) {
@@ -32,9 +35,8 @@ struct ContentView: View {
 
         Tab {
           MetricsView(
-            metricsModifier: $metricsModifier,
             metrics: $metrics,
-            metricsModifierAdditional: $metricsModifierAdditional)
+            metricsModifier: $metricsModifier)
         } label: {
           Text("Metrics")
         }
@@ -83,6 +85,12 @@ struct ContentView: View {
         _ = try? Process.run(
           URL(filePath: "/bin/launchctl"),
           arguments: ["unsetenv", "MTL_HUD_ENABLED"])
+      }
+    }
+    .onChange(of: metricsModifier) {
+      _ = metricsModifier.reduce(into: [String]()) { result, element in
+        result.append(element.key)
+        result.append(String(element.value))
       }
     }
   }

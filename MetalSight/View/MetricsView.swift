@@ -8,29 +8,33 @@
 import SwiftUI
 
 struct MetricsView: View {
-  @Binding var metricsModifier: Set<String>
   @Binding var metrics: Set<String>
-  @Binding var metricsModifierAdditional: Dictionary<String, Int>
+  @Binding var metricsModifier: Dictionary<String, Int>
 
-  private func selection(for key: String, defaultValue: Int) -> Binding<Int> {
+  private func selection(for key: String) -> Binding<Int> {
     Binding {
-      metricsModifierAdditional[key] ?? defaultValue
+      metricsModifier[key]!
     } set: { newValue in
-      metricsModifierAdditional[key] = newValue
+      metricsModifier[key] = newValue
     }
   }
 
-  private func isOn(
-    for value: String,
-    in set: Binding<Set<String>>)
-  -> Binding<Bool> {
+  private func isOn(for key: String) -> Binding<Bool> {
     Binding {
-      set.wrappedValue.contains(value)
+      metricsModifier[key] == 1
+    } set: { newValue in
+      metricsModifier[key] = newValue ? 1 : 0
+    }
+  }
+
+  private func isOn(for value: MetalHUDMetrics) -> Binding<Bool> {
+    Binding {
+      metrics.contains(value.description)
     } set: { newValue in
       if newValue {
-        set.wrappedValue.insert(value)
+        metrics.insert(value.description)
       } else {
-        set.wrappedValue.remove(value)
+        metrics.remove(value.description)
       }
     }
   }
@@ -40,21 +44,15 @@ struct MetricsView: View {
       Section {
         Toggle(
           "Show Value Range",
-          isOn: isOn(
-            for: "MTL_HUD_SHOW_METRICS_RANGE",
-            in: $metricsModifier))
+          isOn: isOn(for: "MTL_HUD_SHOW_METRICS_RANGE"))
 
         Toggle(
           "Show Metrics With 0 Value",
-          isOn: isOn(
-            for: "MTL_HUD_SHOW_ZERO_METRICS",
-            in: $metricsModifier))
+          isOn: isOn(for: "MTL_HUD_SHOW_ZERO_METRICS"))
 
         Toggle(
           "Encoder GPU Time Tracking",
-          isOn: isOn(
-            for: "MTL_HUD_ENCODER_TIMING_ENABLED",
-            in: $metricsModifier))
+          isOn: isOn(for: "MTL_HUD_ENCODER_TIMING_ENABLED"))
         Label("Increases CPU usage", systemImage: "exclamationmark.triangle.fill")
           .symbolRenderingMode(.multicolor)
           .listRowInsets(.leading, 25)
@@ -64,33 +62,27 @@ struct MetricsView: View {
       Section {
         Picker(
           "GPU Timeline Frame Range",
-          selection: selection(
-            for: "MTL_HUD_ENCODER_GPU_TIMELINE_FRAME_COUNT",
-            defaultValue: 6)) {
-              ForEach(1...6, id: \.self) { count in
-                Text(count.description)
-              }
+          selection: selection(for: "MTL_HUD_ENCODER_GPU_TIMELINE_FRAME_COUNT")) {
+            ForEach(1...6, id: \.self) { count in
+              Text(count.description)
             }
+          }
 
         Picker(
           "GPU Timeline Update Interval",
-          selection: selection(
-            for: "MTL_HUD_ENCODER_GPU_TIMELINE_SWAP_DELTA",
-            defaultValue: 1)) {
-              ForEach([1, 15, 30, 45, 60], id: \.self) { interval in
-                Text(interval.description)
-              }
+          selection: selection(for: "MTL_HUD_ENCODER_GPU_TIMELINE_SWAP_DELTA")) {
+            ForEach([1, 15, 30, 45, 60], id: \.self) { interval in
+              Text(interval.description)
             }
+          }
 
         Picker(
           "System Resource Update Interval",
-          selection: selection(
-            for: "MTL_HUD_RUSAGE_UPDATE_INTERVAL",
-            defaultValue: 3)) {
-              ForEach([1, 3, 15, 30 , 45, 60], id: \.self) { interval in
-                Text(interval.description)
-              }
+          selection: selection(for: "MTL_HUD_RUSAGE_UPDATE_INTERVAL")) {
+            ForEach([1, 3, 15, 30 , 45, 60], id: \.self) { interval in
+              Text(interval.description)
             }
+          }
       }
       .listRowSeparator(.hidden)
 
@@ -99,9 +91,7 @@ struct MetricsView: View {
           VStack(alignment: .leading) {
             Toggle(
               metric.rawValue,
-              isOn: isOn(
-                for: metric.description,
-                in: $metrics))
+              isOn: isOn(for: metric))
             if metric.requiresEncoderGPUTimeTracking {
               Label(
                 "Requires Encoder GPU Time Tracking",
@@ -120,7 +110,6 @@ struct MetricsView: View {
 
 #Preview {
   MetricsView(
-    metricsModifier: .constant([]),
     metrics: .constant([]),
-    metricsModifierAdditional: .constant([:]))
+    metricsModifier: .constant([:]))
 }
