@@ -36,10 +36,7 @@ struct ContentView: View {
         }
       }
 
-      Button("Quit", systemImage: "power.circle") {
-        NSApp.terminate(nil)
-      }
-      .buttonStyle(.bordered)
+      AppControl()
     }
     .onAppear {
       let process = Process()

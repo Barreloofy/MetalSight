@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		296037F02EF4323400B665C4 /* BottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296037EF2EF4323400B665C4 /* BottomBar.swift */; };
 		29EDC8342EE73DFA00D095B5 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 29EDC8332EE73DFA00D095B5 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		290C957C2EEC726600A488D5 /* HUDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUDView.swift; sourceTree = "<group>"; };
+		296037EF2EF4323400B665C4 /* BottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomBar.swift; sourceTree = "<group>"; };
 		29825BBC2EDCF066007CF5BF /* MetalSight.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MetalSight.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		29EDC8332EE73DFA00D095B5 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -41,6 +43,7 @@
 				29EDC8332EE73DFA00D095B5 /* .gitignore */,
 				29825BBE2EDCF066007CF5BF /* MetalSight */,
 				29825BBD2EDCF066007CF5BF /* Products */,
+				296037EF2EF4323400B665C4 /* BottomBar.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -128,6 +131,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				296037F02EF4323400B665C4 /* BottomBar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
