@@ -9,21 +9,17 @@ struct Configuration: Equatable, Codable {
   var placement: HUDPlacement = .topright
   var scale = 0.2
 
-  var metrics: Set<String> = []
-  var metricsModifier: Dictionary<String, Int> = [
-    "MTL_HUD_ENCODER_GPU_TIMELINE_FRAME_COUNT": 6,
-    "MTL_HUD_ENCODER_GPU_TIMELINE_SWAP_DELTA": 1,
-    "MTL_HUD_RUSAGE_UPDATE_INTERVAL": 3,
-  ]
+  var metrics: Set<String> = Configuration.default
+  var metricsModifier: Dictionary<String, Int> = [:]
 
-  var metricsModifierAsArray: [String] {
-    metricsModifier.reduce(into: [String]()) { partialResult, element in
-      partialResult.append(element.key)
-      partialResult.append(String(element.value))
+  private var metricsModifierAsArray: [String] {
+    metricsModifier.reduce(into: [String]()) { result, element in
+      result.append(element.key)
+      result.append(String(element.value))
     }
   }
 
-  var metricsAsString: String {
+  private var metricsAsString: String {
     metrics.joined(separator: ",")
   }
 

@@ -13,9 +13,18 @@ struct MetricsConfiguration: View {
   @Binding
   var metricsModifier: Dictionary<String, Int>
 
-  private func selection(for key: String) -> Binding<Int> {
+  @AppStorage("preset")
+  private var preset: MetricsPreset = .custom
+
+  private func selection(for key: String, default defaultValue: Int) -> Binding<Int> {
     Binding {
-      metricsModifier[key]!
+      guard
+        metricsModifier[key] == nil
+      else { return metricsModifier[key]! }
+
+      metricsModifier[key] = defaultValue
+
+      return defaultValue
     } set: { newValue in
       metricsModifier[key] = newValue
     }
@@ -38,6 +47,7 @@ struct MetricsConfiguration: View {
       } else {
         metrics.remove(value.description)
       }
+      preset = .custom
     }
   }
 
@@ -64,7 +74,7 @@ struct MetricsConfiguration: View {
       Section {
         Picker(
           "GPU Timeline Frame Range",
-          selection: selection(for: "MTL_HUD_ENCODER_GPU_TIMELINE_FRAME_COUNT")) {
+          selection: selection(for: "MTL_HUD_ENCODER_GPU_TIMELINE_FRAME_COUNT", default: 6)) {
             ForEach(1...6, id: \.self) { count in
               Text(count.description)
             }
@@ -73,7 +83,7 @@ struct MetricsConfiguration: View {
 
         Picker(
           "GPU Timeline Update Interval",
-          selection: selection(for: "MTL_HUD_ENCODER_GPU_TIMELINE_SWAP_DELTA")) {
+          selection: selection(for: "MTL_HUD_ENCODER_GPU_TIMELINE_SWAP_DELTA", default: 1)) {
             ForEach([1, 15, 30, 45, 60], id: \.self) { interval in
               Text(interval.description)
             }
@@ -82,7 +92,7 @@ struct MetricsConfiguration: View {
 
         Picker(
           "System Resource Update Interval",
-          selection: selection(for: "MTL_HUD_RUSAGE_UPDATE_INTERVAL")) {
+          selection: selection(for: "MTL_HUD_RUSAGE_UPDATE_INTERVAL", default: 3)) {
             ForEach([1, 3, 15, 30 , 45, 60], id: \.self) { interval in
               Text(interval.description)
             }
@@ -92,8 +102,31 @@ struct MetricsConfiguration: View {
       .listRowSeparator(.hidden)
 
       Section {
+        Picker("Preset", selection: $preset) {
+          ForEach(MetricsPreset.allCases) { preset in
+            Text(preset.rawValue)
+          }
+        }
+        .onChange(of: preset) {
+          switch preset {
+          case .default:
+            metrics = Configuration.default
+          case .fpsOnly:
+            metrics = Configuration.fpsOnly
+          case .rich:
+            metrics = Configuration.rich
+          case .full:
+            metrics = Configuration.full
+          case .custom:
+            break
+          }
+        }
+      }
+      .listRowSeparator(.hidden)
+
+      Section {
         ForEach(MetalHUDMetrics.allCases) { metric in
-          VStack(alignment: .leading) {
+          Form {
             Toggle(
               metric.rawValue,
               isOn: isOn(for: metric))
