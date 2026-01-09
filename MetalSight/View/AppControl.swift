@@ -15,15 +15,14 @@ struct AppControl: View {
 
   var body: some View {
     HStack {
-      Button("Quit", systemImage: "power.circle") {
+      Button("Quit", systemImage: "power.circle", role: .close) {
         NSApp.terminate(nil)
       }
-      .buttonStyle(.bordered)
+      .tint(.red)
 
       Spacer()
 
       Toggle("Launch At Login", isOn: $launchAtLogin)
-        .toggleStyle(.checkbox)
     }
     .onChange(of: appearsActive, initial: true) {
       if SMAppService.mainApp.status == .enabled {
@@ -40,4 +39,9 @@ struct AppControl: View {
       }
     }
   }
+}
+
+
+#Preview {
+  AppControl()
 }
